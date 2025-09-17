@@ -6,6 +6,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   title: "Layanan Publik",
   description: "Sistem Layanan Publik Mobile Responsive",
+  icons: '/icon.png'
 };
 
 export const viewport = {
