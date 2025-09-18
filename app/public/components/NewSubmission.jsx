@@ -75,8 +75,12 @@ export default function NewSubmission() {
 
     if (!formData.no_wa.trim()) {
       newErrors.no_wa = "Nomor WhatsApp wajib diisi";
-    } else if (!/^\d+$/.test(formData.no_wa.trim())) {
-      newErrors.no_wa = "Nomor WhatsApp hanya boleh berisi angka";
+    } else {
+      const formatted = formatPhoneNumber(formData.no_wa.trim());
+      const mobileRegex = /^\+628[1-9][0-9]{6,11}$/;
+      if (!mobileRegex.test(formatted)) {
+        newErrors.no_wa = "Nomor WhatsApp tidak valid. Gunakan 08xxxxxxxxxx atau +628xxxxxxxxxx";
+      }
     }
 
     if (!formData.jenis_layanan) {
