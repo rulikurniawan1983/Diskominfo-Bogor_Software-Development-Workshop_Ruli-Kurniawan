@@ -144,6 +144,11 @@ async function seedAdmin() {
         email: "admin2@diskominfo.go.id",
         password: "admin456",
       },
+      {
+        username: "fanani",
+        email: "fanani@diskominfo.go.id",
+        password: "fanani123",
+      },
     ];
 
     for (const adminData of additionalAdmins) {

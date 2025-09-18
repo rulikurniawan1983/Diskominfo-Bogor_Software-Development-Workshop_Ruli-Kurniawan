@@ -67,12 +67,16 @@ export default function NewSubmission() {
       newErrors.nik = "NIK hanya boleh berisi angka";
     }
 
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (!formData.email.trim()) {
+      newErrors.email = "Email wajib diisi";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Format email tidak valid";
     }
 
     if (!formData.no_wa.trim()) {
       newErrors.no_wa = "Nomor WhatsApp wajib diisi";
+    } else if (!/^\d+$/.test(formData.no_wa.trim())) {
+      newErrors.no_wa = "Nomor WhatsApp hanya boleh berisi angka";
     }
 
     if (!formData.jenis_layanan) {

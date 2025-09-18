@@ -20,7 +20,7 @@
     "bcryptjs": "3.0.2",
     "critters": "^0.0.20",
     "dotenv": "^16.6.1",
-    "next": "14.0.4",
+    "next": "14.2.32",
     "next-sitemap": "^4.2.3",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
@@ -38,5 +38,8 @@
   "devDependencies": {
     "eslint": "^8",
     "eslint-config-next": "14.0.4"
+  },
+  "overrides": {
+    "axios": ">=1.12.0"
   }
 }

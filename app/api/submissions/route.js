@@ -146,6 +146,14 @@ export async function POST(request) {
       );
     }
 
+    // Server-side validation: WhatsApp number must be numeric digits only
+    if (!/^\d+$/.test(String(no_wa).trim())) {
+      return NextResponse.json(
+        { message: "Nomor WhatsApp hanya boleh berisi angka" },
+        { status: 400 }
+      );
+    }
+
     // Generate tracking code
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2, 8).toUpperCase();

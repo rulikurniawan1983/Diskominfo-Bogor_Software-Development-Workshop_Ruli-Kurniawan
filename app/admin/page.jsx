@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Table, Select, message, Card, Row, Col } from "antd";
+import { Table, Select, message, Card, Row, Col, DatePicker, Input } from "antd";
 import {
   PieChart,
   Pie,
@@ -19,6 +19,9 @@ export default function AdminDashboard() {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [serviceFilter, setServiceFilter] = useState("ALL");
+  const [dateRange, setDateRange] = useState([]); // [startMoment, endMoment]
   const [chartData, setChartData] = useState([]);
   const [updatingStatus, setUpdatingStatus] = useState({}); // Track which submission is being updated
   const [refreshing, setRefreshing] = useState(false); // Track refresh loading state
@@ -205,6 +208,11 @@ export default function AdminDashboard() {
     }
   };
 
+  // Derive service options from loaded submissions
+  const uniqueServices = Array.from(
+    new Set((submissions || []).map((s) => s.jenis_layanan).filter(Boolean))
+  );
+
   const handleLogout = () => {
     localStorage.removeItem("adminLoggedIn");
     localStorage.removeItem("adminData");
@@ -374,10 +382,34 @@ export default function AdminDashboard() {
     },
   ];
 
-  const filteredSubmissions =
-    statusFilter === "ALL"
-      ? submissions
-      : submissions.filter((sub) => sub.status === statusFilter);
+  const filteredSubmissions = (submissions || [])
+    // Status filter
+    .filter((sub) => (statusFilter === "ALL" ? true : sub.status === statusFilter))
+    // Service filter
+    .filter((sub) => (serviceFilter === "ALL" ? true : sub.jenis_layanan === serviceFilter))
+    // Date range filter (created_at within range)
+    .filter((sub) => {
+      if (!dateRange || dateRange.length !== 2 || !dateRange[0] || !dateRange[1]) return true;
+      try {
+        const created = new Date(sub.created_at).getTime();
+        const start = dateRange[0].startOf("day").valueOf();
+        const end = dateRange[1].endOf("day").valueOf();
+        return created >= start && created <= end;
+      } catch (_) {
+        return true;
+      }
+    })
+    // Text search filter (tracking_code, nama, email, nik)
+    .filter((sub) => {
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        (sub.tracking_code || "").toLowerCase().includes(q) ||
+        (sub.nama || "").toLowerCase().includes(q) ||
+        (sub.email || "").toLowerCase().includes(q) ||
+        (sub.nik || "").toLowerCase().includes(q)
+      );
+    });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -759,27 +791,58 @@ export default function AdminDashboard() {
 
         {/* Table */}
         <Card title="Daftar Pengajuan">
-          <div className="mb-4">
-            <Select
-              value={statusFilter}
-              onChange={setStatusFilter}
-              style={{ width: "100%", maxWidth: 200 }}
-              placeholder="Filter by status"
-              disabled={loading || Object.values(updatingStatus).some(Boolean)}
-              loading={loading}
-            >
-              <Option value="ALL">Semua Status</Option>
-              <Option value="PENGAJUAN_BARU">Pengajuan Baru</Option>
-              <Option value="DIPROSES">Sedang Diproses</Option>
-              <Option value="SELESAI">Selesai</Option>
-              <Option value="DITOLAK">Ditolak</Option>
-            </Select>
-            {loading && (
-              <span className="ml-2 text-xs sm:text-sm text-gray-500">
-                Memuat data...
-              </span>
-            )}
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div>
+              <Select
+                value={statusFilter}
+                onChange={setStatusFilter}
+                style={{ width: "100%" }}
+                placeholder="Filter status"
+                disabled={loading || Object.values(updatingStatus).some(Boolean)}
+                loading={loading}
+              >
+                <Option value="ALL">Semua Status</Option>
+                <Option value="PENGAJUAN_BARU">Pengajuan Baru</Option>
+                <Option value="DIPROSES">Sedang Diproses</Option>
+                <Option value="SELESAI">Selesai</Option>
+                <Option value="DITOLAK">Ditolak</Option>
+              </Select>
+            </div>
+            <div>
+              <Select
+                value={serviceFilter}
+                onChange={setServiceFilter}
+                style={{ width: "100%" }}
+                placeholder="Filter layanan"
+                allowClear={false}
+                disabled={loading}
+              >
+                <Option value="ALL">Semua Layanan</Option>
+                {uniqueServices.map((svc) => (
+                  <Option key={svc} value={svc}>{svc}</Option>
+                ))}
+              </Select>
+            </div>
+            <div>
+              <DatePicker.RangePicker
+                style={{ width: "100%" }}
+                value={dateRange}
+                onChange={setDateRange}
+                allowEmpty={[true, true]}
+              />
+            </div>
+            <div>
+              <Input.Search
+                placeholder="Cari tracking/nama/email/NIK"
+                allowClear
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
+          {loading && (
+            <div className="-mt-2 mb-2 text-xs sm:text-sm text-gray-500">Memuat data...</div>
+          )}
 
           <div className="relative">
             <Table

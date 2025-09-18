@@ -46,12 +46,10 @@ export async function PATCH(request, { params }) {
     console.log("Updating submission:", id, "to status:", status);
 
     // Validation
-    if (
-      !status ||
-      !["PENGAJUAN_BARU", "DIPROSES", "SELESAI", "DITOLAK"].includes(status)
-    ) {
+    const allowedStatuses = ["PENGAJUAN_BARU", "DIPROSES", "SELESAI"]; // forward-only flow
+    if (!status || !allowedStatuses.includes(status)) {
       return NextResponse.json(
-        { message: "Status tidak valid" },
+        { message: "Status tidak valid. Hanya boleh: PENGAJUAN_BARU → DIPROSES → SELESAI" },
         { status: 400 }
       );
     }
@@ -69,6 +67,32 @@ export async function PATCH(request, { params }) {
     if (submission.status === status) {
       return NextResponse.json(
         { message: "Status sudah sama" },
+        { status: 400 }
+      );
+    }
+
+    // Enforce forward-only transitions (no rollback)
+    const currentIndex = allowedStatuses.indexOf(submission.status);
+    const newIndex = allowedStatuses.indexOf(status);
+
+    // If current status not in our list (e.g., legacy states), treat as error for safety
+    if (currentIndex === -1) {
+      return NextResponse.json(
+        { message: `Status saat ini (${submission.status}) tidak didukung untuk transisi` },
+        { status: 400 }
+      );
+    }
+
+    if (newIndex === -1) {
+      return NextResponse.json(
+        { message: "Status tujuan tidak valid" },
+        { status: 400 }
+      );
+    }
+
+    if (newIndex < currentIndex) {
+      return NextResponse.json(
+        { message: "Status tidak boleh mundur. Hanya boleh maju." },
         { status: 400 }
       );
     }
