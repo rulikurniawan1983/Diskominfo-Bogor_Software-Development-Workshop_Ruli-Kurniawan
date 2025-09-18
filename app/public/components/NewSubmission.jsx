@@ -76,10 +76,10 @@ export default function NewSubmission() {
     if (!formData.no_wa.trim()) {
       newErrors.no_wa = "Nomor WhatsApp wajib diisi";
     } else {
-      const formatted = formatPhoneNumber(formData.no_wa.trim());
-      const mobileRegex = /^\+628[1-9][0-9]{6,11}$/;
-      if (!mobileRegex.test(formatted)) {
-        newErrors.no_wa = "Nomor WhatsApp tidak valid. Gunakan 08xxxxxxxxxx atau +628xxxxxxxxxx";
+      // Allow common phone formats: 08xxxx, 8xxxx, +628xxxx, etc.
+      const phoneRegex = /^(\+?62|0)?[0-9]{8,13}$/;
+      if (!phoneRegex.test(formData.no_wa.trim())) {
+        newErrors.no_wa = "Format nomor WhatsApp tidak valid. Gunakan 08xxxxxxxxxx atau +628xxxxxxxxxx";
       }
     }
 
