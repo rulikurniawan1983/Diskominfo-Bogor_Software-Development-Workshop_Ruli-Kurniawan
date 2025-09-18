@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 import { Submission, NotificationLog, initializeDatabase } from "@/lib/sequelize";
-import { normalizePhoneNumber } from "@/lib/phone";
+import { normalizePhoneNumber, isValidIndonesianMobile } from "@/lib/phone";
 import { sendInitialSubmissionNotification } from "@/lib/notify/sicuba";
 
 // Initialize database on first request
@@ -148,10 +148,11 @@ export async function POST(request) {
       );
     }
 
-    // Server-side validation: WhatsApp number must be numeric digits only
-    if (!/^\d+$/.test(String(no_wa).trim())) {
+    // Server-side validation: accept common inputs, validate after normalization
+    const rawPhone = String(no_wa || "").trim();
+    if (!isValidIndonesianMobile(rawPhone)) {
       return NextResponse.json(
-        { message: "Nomor WhatsApp hanya boleh berisi angka" },
+        { message: "Nomor WhatsApp tidak valid. Gunakan format 08xxxxxxxxxx atau +628xxxxxxxxxx" },
         { status: 400 }
       );
     }
@@ -162,7 +163,7 @@ export async function POST(request) {
     const tracking_code = `WS-${timestamp}-${random}`;
 
     // Normalize phone number to +62 format
-    const normalizedPhone = normalizePhoneNumber(no_wa);
+    const normalizedPhone = normalizePhoneNumber(rawPhone);
 
     // Create submission
     const submission = await Submission.create({
