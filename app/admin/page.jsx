@@ -22,6 +22,7 @@ export default function AdminDashboard() {
   const [chartData, setChartData] = useState([]);
   const [updatingStatus, setUpdatingStatus] = useState({}); // Track which submission is being updated
   const [refreshing, setRefreshing] = useState(false); // Track refresh loading state
+  const [adminData, setAdminData] = useState(null); // Store admin data
 
   const COLORS = ["#ffc107", "#1890ff", "#52c41a", "#ff4d4f"];
 
@@ -29,12 +30,26 @@ export default function AdminDashboard() {
     // Check if admin is logged in
     const checkAuth = () => {
       const isLoggedIn = localStorage.getItem("adminLoggedIn");
+      const adminDataStr = localStorage.getItem("adminData");
       console.log("Auth check - isLoggedIn:", isLoggedIn); // Debug log
+      
       if (!isLoggedIn) {
         console.log("Not logged in, redirecting to login"); // Debug log
         router.push("/admin/login");
         return;
       }
+
+      // Parse admin data
+      if (adminDataStr) {
+        try {
+          const admin = JSON.parse(adminDataStr);
+          setAdminData(admin);
+          console.log("Admin data loaded:", admin);
+        } catch (error) {
+          console.error("Error parsing admin data:", error);
+        }
+      }
+
       console.log("Logged in, fetching submissions"); // Debug log
       fetchSubmissions();
     };
@@ -192,6 +207,7 @@ export default function AdminDashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem("adminLoggedIn");
+    localStorage.removeItem("adminData");
     router.push("/admin/login");
   };
 
@@ -378,6 +394,11 @@ export default function AdminDashboard() {
                   ? "Memuat data pengajuan..."
                   : "Kelola pengajuan layanan masyarakat"}
               </p>
+              {adminData && (
+                <div className="mt-2 text-xs sm:text-sm text-blue-600">
+                  <span className="font-medium">Masuk sebagai: {adminData.email}</span>
+                </div>
+              )}
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <button

@@ -38,11 +38,16 @@ async function fixPostgresSchema() {
     await sequelize.authenticate();
     console.log("✅ PostgreSQL connection established successfully.");
 
-    // Check if createdAt column exists and has null values
+    // Ensure snake_case timestamps exist and are populated
+    await sequelize.query('ALTER TABLE "public"."submissions" ADD COLUMN IF NOT EXISTS "created_at" TIMESTAMPTZ NULL');
+    await sequelize.query('ALTER TABLE "public"."submissions" ADD COLUMN IF NOT EXISTS "updated_at" TIMESTAMPTZ NULL');
+    await sequelize.query('UPDATE submissions SET "created_at" = NOW() WHERE "created_at" IS NULL');
+    await sequelize.query('UPDATE submissions SET "updated_at" = NOW() WHERE "updated_at" IS NULL');
+
     const [results] = await sequelize.query(`
       SELECT COUNT(*) as null_count 
       FROM submissions 
-      WHERE "createdAt" IS NULL
+      WHERE "created_at" IS NULL
     `);
 
     const nullCount = results[0].null_count;
@@ -51,11 +56,11 @@ async function fixPostgresSchema() {
     if (nullCount > 0) {
       console.log("🔧 Fixing null createdAt values...");
       
-      // Update null createdAt values with current timestamp
+      // Update null created_at values with current timestamp
       await sequelize.query(`
         UPDATE submissions 
-        SET "createdAt" = NOW() 
-        WHERE "createdAt" IS NULL
+        SET "created_at" = NOW() 
+        WHERE "created_at" IS NULL
       `);
       
       console.log("✅ Updated null createdAt values");
@@ -65,7 +70,7 @@ async function fixPostgresSchema() {
     const [updatedResults] = await sequelize.query(`
       SELECT COUNT(*) as null_count 
       FROM submissions 
-      WHERE "updatedAt" IS NULL
+      WHERE "updated_at" IS NULL
     `);
 
     const updatedNullCount = updatedResults[0].null_count;
@@ -74,15 +79,19 @@ async function fixPostgresSchema() {
     if (updatedNullCount > 0) {
       console.log("🔧 Fixing null updatedAt values...");
       
-      // Update null updatedAt values with current timestamp
+      // Update null updated_at values with current timestamp
       await sequelize.query(`
         UPDATE submissions 
-        SET "updatedAt" = NOW() 
-        WHERE "updatedAt" IS NULL
+        SET "updated_at" = NOW() 
+        WHERE "updated_at" IS NULL
       `);
       
       console.log("✅ Updated null updatedAt values");
     }
+
+    // Notification logs: ensure and backfill created_at
+    await sequelize.query('ALTER TABLE "public"."notification_logs" ADD COLUMN IF NOT EXISTS "created_at" TIMESTAMPTZ NULL');
+    await sequelize.query('UPDATE notification_logs SET "created_at" = NOW() WHERE "created_at" IS NULL');
 
     // Now try to sync the models
     console.log("🔄 Synchronizing database models...");

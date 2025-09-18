@@ -7,7 +7,7 @@ import { message } from "antd";
 export default function AdminLogin() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: "",
   });
   const [errors, setErrors] = useState({});
@@ -27,8 +27,8 @@ export default function AdminLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.username || !formData.password) {
-      setErrors({ submit: "Username dan password wajib diisi" });
+    if (!formData.email || !formData.password) {
+      setErrors({ submit: "Email dan password wajib diisi" });
       return;
     }
 
@@ -41,29 +41,40 @@ export default function AdminLogin() {
     setErrors({}); // Clear previous errors
 
     try {
-      // Simulate network delay for better UX
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Simple authentication for workshop - in production use proper auth
-      if (formData.username === "admin" && formData.password === "admin123") {
-        // Set session (in production use proper session management)
+      // Call authentication API
+      const response = await fetch("/api/admin/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email.trim(),
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Set session data
         localStorage.setItem("adminLoggedIn", "true");
-        console.log("Login successful, localStorage set"); // Debug log
+        localStorage.setItem("adminData", JSON.stringify(data.admin));
+        console.log("Login successful, admin data:", data.admin);
         
         // Show success message
-        message.success("Login berhasil! Mengalihkan ke dashboard...");
+        message.success(`Login berhasil, ${data.admin.email}`);
         
         // Small delay to show the success message
         setTimeout(() => {
           router.push("/admin");
         }, 1000);
       } else {
-        setErrors({ submit: "Username atau password salah" });
+        setErrors({ submit: data.message || "Email atau password salah" });
         setIsSubmitting(false); // Reset loading state on error
       }
     } catch (error) {
       console.error("Login error:", error);
-      setErrors({ submit: "Terjadi kesalahan" });
+      setErrors({ submit: "Terjadi kesalahan jaringan" });
       setIsSubmitting(false); // Reset loading state on error
     }
   };
@@ -84,19 +95,19 @@ export default function AdminLogin() {
           
           <div>
             <label
-              htmlFor="username"
+              htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Username
+              Email
             </label>
             <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-black transition duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Masukkan username"
+              placeholder="Masukkan email"
             />
           </div>
 
@@ -153,9 +164,9 @@ export default function AdminLogin() {
           </a>
         </div>
 
-        <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
           <p className="text-sm text-yellow-800">
-            <strong>Workshop Demo:</strong> Username: admin, Password: admin123
+            <strong>Workshop Demo:</strong> Email: admin@diskominfo.go.id, Password: admin123
           </p>
         </div>
       </div>

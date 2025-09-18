@@ -174,6 +174,8 @@ async function initDatabase() {
       {
         tableName: "submissions",
         timestamps: true,
+        createdAt: "created_at",
+        updatedAt: "updated_at",
       }
     );
 
@@ -209,6 +211,7 @@ async function initDatabase() {
       {
         tableName: "notification_logs",
         timestamps: true,
+        createdAt: "created_at",
         updatedAt: false, // Only track creation time
       }
     );
@@ -222,6 +225,66 @@ async function initDatabase() {
       await sequelize.authenticate();
       console.log("✅ Database connection established successfully.");
     }
+
+    // If using PostgreSQL, ensure timestamp columns exist and are populated before sync
+    const isPostgres = sequelize.getDialect() === 'postgres';
+    if (isPostgres) {
+      // Helper: ensure a timestamp column exists, then backfill and set NOT NULL
+      const ensureTimestampColumn = async (tableName, columnName, setNotNull) => {
+        try {
+          // Check column existence
+          const [cols] = await sequelize.query(
+            `SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name = $1 AND column_name = $2`,
+            { bind: [tableName, columnName] }
+          );
+          const exists = Array.isArray(cols) ? cols.length > 0 : !!cols;
+          if (!exists) {
+            // Create column as NULLABLE first
+            await sequelize.query(`ALTER TABLE "public"."${tableName}" ADD COLUMN "${columnName}" TIMESTAMPTZ NULL`);
+          }
+          // Backfill NULLs to current timestamp
+          await sequelize.query(`UPDATE "public"."${tableName}" SET "${columnName}" = NOW() WHERE "${columnName}" IS NULL`);
+          if (setNotNull) {
+            // Enforce NOT NULL after backfill
+            await sequelize.query(`ALTER TABLE "public"."${tableName}" ALTER COLUMN "${columnName}" SET NOT NULL`);
+          }
+        } catch (e) {
+          // Swallow to keep init resilient; logs help during dev
+          console.log(`⚠️  ensureTimestampColumn(${tableName}.${columnName}) skipped: ${e.message}`);
+        }
+      };
+
+      // Submissions timestamps (both snake_case official)
+      await ensureTimestampColumn('submissions', 'created_at', true);
+      await ensureTimestampColumn('submissions', 'updated_at', true);
+
+      // Legacy camelCase columns if they exist (backfill only, do not enforce)
+      await ensureTimestampColumn('submissions', 'createdAt', false);
+      await ensureTimestampColumn('submissions', 'updatedAt', false);
+
+      // Notification logs only created_at (no updated_at in model)
+      await ensureTimestampColumn('notification_logs', 'created_at', true);
+      // Legacy camelCase
+      await ensureTimestampColumn('notification_logs', 'createdAt', false);
+    }
+
+    // Backfill potential null timestamps before syncing to avoid NOT NULL violations
+    try {
+      // Backfill for submissions (snake_case)
+      await sequelize.query('UPDATE submissions SET "created_at" = NOW() WHERE "created_at" IS NULL');
+    } catch (e) {}
+    try {
+      // Backfill for submissions (camelCase legacy)
+      await sequelize.query('UPDATE submissions SET "createdAt" = NOW() WHERE "createdAt" IS NULL');
+    } catch (e) {}
+    try {
+      // Backfill for notification_logs (snake_case)
+      await sequelize.query('UPDATE notification_logs SET "created_at" = NOW() WHERE "created_at" IS NULL');
+    } catch (e) {}
+    try {
+      // Backfill for notification_logs (camelCase legacy)
+      await sequelize.query('UPDATE notification_logs SET "createdAt" = NOW() WHERE "createdAt" IS NULL');
+    } catch (e) {}
 
     // Sync models (create tables if they don't exist)
     await sequelize.sync({ alter: true });

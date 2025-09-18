@@ -49,7 +49,7 @@ async function fixSchema() {
     await sequelize.authenticate();
     console.log("✅ Database connection established successfully.");
 
-    // Check if createdAt column exists and has null values
+    // Backfill legacy/camel timestamps for submissions
     const [results] = await sequelize.query(`
       SELECT COUNT(*) as null_count 
       FROM submissions 
@@ -94,6 +94,22 @@ async function fixSchema() {
       
       console.log("✅ Updated null updatedAt values");
     }
+
+    // Backfill snake_case timestamps for submissions
+    try {
+      await sequelize.query('UPDATE submissions SET "created_at" = NOW() WHERE "created_at" IS NULL');
+    } catch (e) {}
+    try {
+      await sequelize.query('UPDATE submissions SET "updated_at" = NOW() WHERE "updated_at" IS NULL');
+    } catch (e) {}
+
+    // Backfill notification_logs timestamps (both legacy camelCase and snake_case)
+    try {
+      await sequelize.query('UPDATE notification_logs SET "createdAt" = NOW() WHERE "createdAt" IS NULL');
+    } catch (e) {}
+    try {
+      await sequelize.query('UPDATE notification_logs SET "created_at" = NOW() WHERE "created_at" IS NULL');
+    } catch (e) {}
 
     // Now try to sync the models
     console.log("🔄 Synchronizing database models...");
