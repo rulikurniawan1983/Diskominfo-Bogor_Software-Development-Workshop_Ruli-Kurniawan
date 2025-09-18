@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import NewSubmission from "./components/NewSubmission";
 import StatusCheck from "./components/StatusCheck";
 
-export default function PublicPage() {
+function PublicPageInner() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("submission");
 
@@ -88,5 +88,13 @@ export default function PublicPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PublicPage() {
+  return (
+    <Suspense fallback={<div className="p-6">Memuat...</div>}>
+      <PublicPageInner />
+    </Suspense>
   );
 }

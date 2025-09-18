@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import { Submission, NotificationLog, initializeDatabase } from "@/lib/sequelize";
 import { normalizePhoneNumber } from "@/lib/phone";
 import { sendInitialSubmissionNotification } from "@/lib/notify/sicuba";
