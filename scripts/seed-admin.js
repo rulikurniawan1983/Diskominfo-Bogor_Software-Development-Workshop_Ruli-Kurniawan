@@ -144,11 +144,6 @@ async function seedAdmin() {
         email: "admin2@diskominfo.go.id",
         password: "admin456",
       },
-      {
-        username: "fanani",
-        email: "fanani@diskominfo.go.id",
-        password: "fanani123",
-      },
     ];
 
     for (const adminData of additionalAdmins) {
@@ -183,9 +178,9 @@ async function seedAdmin() {
 
     console.log("\n🎉 Admin seeding completed successfully!");
     console.log("\n📝 Login credentials:");
-    console.log("Email: admin@diskominfo.go.id, Password: admin123");
-    console.log("Email: operator1@diskominfo.go.id, Password: operator123");
-    console.log("Email: admin2@diskominfo.go.id, Password: admin456");
+    console.log("Username: admin, Password: admin123");
+    console.log("Username: operator1, Password: operator123");
+    console.log("Username: admin2, Password: admin456");
 
   } catch (error) {
     console.error("❌ Error seeding admin data:", error);

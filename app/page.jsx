@@ -8,34 +8,14 @@ export default function Home() {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Layanan NKV Online
+            SLIDER
           </h1>
           <p className="text-gray-600">
-            Sistem Layanan Publik Mobile Dinas Perikanan dan Peternakan Kab. Bogor
+            Sistem Layanan Informasi Data Edukasi Realtime
           </p>
         </div>
 
         <div className="space-y-4">
-          <Link
-            href="/admin/login"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center"
-          >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
-            Login Admin
-          </Link>
-
           <Link
             href="/public"
             className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center"
@@ -56,11 +36,31 @@ export default function Home() {
             Layanan Masyarakat
           </Link>
 
+          <Link
+            href="/admin/login"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center"
+          >
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+            Login Admin
+          </Link>
+
         </div>
 
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>© 2024 Layanan Publik Mobile</p>
-          <p className="mt-1">Workshop-Friendly System</p>
+          <p>Ruli Kurniawan</p>
+          <p className="mt-1">© 2025 SLIDER</p>
         </div>
 
       </div>

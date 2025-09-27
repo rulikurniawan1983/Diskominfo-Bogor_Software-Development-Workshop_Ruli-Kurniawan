@@ -30,25 +30,46 @@ function PublicPageInner() {
                 Pengajuan dan Pengecekan Status Layanan
               </p>
             </div>
-            <a
-              href="/"
-              className="text-blue-600 hover:text-blue-800 font-medium text-sm sm:text-base flex items-center justify-center sm:justify-start"
-            >
-              <svg
-                className="w-4 h-4 mr-1 sm:mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+              <a
+                href="/public/dashboard"
+                className="text-green-600 hover:text-green-800 font-medium text-sm sm:text-base flex items-center justify-center sm:justify-start"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-              Kembali ke Beranda
-            </a>
+                <svg
+                  className="w-4 h-4 mr-1 sm:mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+                Dashboard
+              </a>
+              <a
+                href="/"
+                className="text-blue-600 hover:text-blue-800 font-medium text-sm sm:text-base flex items-center justify-center sm:justify-start"
+              >
+                <svg
+                  className="w-4 h-4 mr-1 sm:mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
+                </svg>
+                Kembali ke Beranda
+              </a>
+            </div>
           </div>
         </div>
       </div>

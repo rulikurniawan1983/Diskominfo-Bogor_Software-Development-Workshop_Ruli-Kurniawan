@@ -1,4 +1,4 @@
-# Panduan Login Admin dengan Database
+POST /api/admin/auth/login 401 in 17ms# Panduan Login Admin dengan Database
 
 ## Overview
 Sistem login admin telah diupdate untuk menggunakan database authentication dengan Sequelize. Admin data disimpan dalam tabel `admins` dengan password yang di-hash menggunakan bcryptjs.

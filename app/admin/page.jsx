@@ -2,15 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Table, Select, message, Card, Row, Col, DatePicker, Input } from "antd";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Legend,
-  Tooltip,
-} from "recharts";
+import { Table, Select, message, Card, DatePicker, Input, Tabs } from "antd";
 
 const { Option } = Select;
 
@@ -22,12 +14,10 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [serviceFilter, setServiceFilter] = useState("ALL");
   const [dateRange, setDateRange] = useState([]); // [startMoment, endMoment]
-  const [chartData, setChartData] = useState([]);
   const [updatingStatus, setUpdatingStatus] = useState({}); // Track which submission is being updated
   const [refreshing, setRefreshing] = useState(false); // Track refresh loading state
   const [adminData, setAdminData] = useState(null); // Store admin data
-
-  const COLORS = ["#ffc107", "#1890ff", "#52c41a", "#ff4d4f"];
+  const [activeSubmissionTab, setActiveSubmissionTab] = useState("ALL"); // Track active submission type tab
 
   useEffect(() => {
     // Check if admin is logged in
@@ -92,7 +82,6 @@ export default function AdminDashboard() {
 
       if (response.ok) {
         setSubmissions(data);
-        updateChartData(data);
         if (showLoading) {
           message.success("Data berhasil diperbarui");
         }
@@ -114,20 +103,6 @@ export default function AdminDashboard() {
     fetchSubmissions(true);
   };
 
-  const updateChartData = (data) => {
-    const statusCount = data.reduce((acc, item) => {
-      acc[item.status] = (acc[item.status] || 0) + 1;
-      return acc;
-    }, {});
-
-    const chartData = Object.entries(statusCount).map(([status, count]) => ({
-      name: getStatusText(status),
-      value: count,
-      status,
-    }));
-
-    setChartData(chartData);
-  };
 
   const getStatusText = (status) => {
     switch (status) {
@@ -383,6 +358,8 @@ export default function AdminDashboard() {
   ];
 
   const filteredSubmissions = (submissions || [])
+    // Submission type tab filter
+    .filter((sub) => (activeSubmissionTab === "ALL" ? true : sub.jenis_layanan === activeSubmissionTab))
     // Status filter
     .filter((sub) => (statusFilter === "ALL" ? true : sub.status === statusFilter))
     // Service filter
@@ -553,244 +530,68 @@ export default function AdminDashboard() {
            </div>
          </div> */}
 
-        {/* Stats Cards */}
-        <Row gutter={[8, 8]} className="mb-6 sm:mb-8">
-          <Col xs={12} sm={6}>
-            <Card>
-              <div className="text-center">
-                {loading ? (
-                  <div className="flex items-center justify-center">
-                    <svg
-                      className="animate-spin h-5 w-5 sm:h-6 sm:w-6 text-blue-600"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                  </div>
-                ) : (
-                  <div className="text-lg sm:text-2xl font-bold text-blue-600">
-                    {submissions.length}
-                  </div>
-                )}
-                <div className="text-sm sm:text-base text-gray-600">
-                  Total Pengajuan
-                </div>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={12} sm={6}>
-            <Card>
-              <div className="text-center">
-                {loading ? (
-                  <div className="flex items-center justify-center">
-                    <svg
-                      className="animate-spin h-5 w-5 sm:h-6 sm:w-6 text-yellow-600"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                  </div>
-                ) : (
-                  <div className="text-lg sm:text-2xl font-bold text-yellow-600">
-                    {
-                      submissions.filter((s) => s.status === "PENGAJUAN_BARU")
-                        .length
-                    }
-                  </div>
-                )}
-                <div className="text-sm sm:text-base text-gray-600">
-                  Pengajuan Baru
-                </div>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={12} sm={6}>
-            <Card>
-              <div className="text-center">
-                {loading ? (
-                  <div className="flex items-center justify-center">
-                    <svg
-                      className="animate-spin h-5 w-5 sm:h-6 sm:w-6 text-blue-600"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                  </div>
-                ) : (
-                  <div className="text-lg sm:text-2xl font-bold text-blue-600">
-                    {submissions.filter((s) => s.status === "DIPROSES").length}
-                  </div>
-                )}
-                <div className="text-sm sm:text-base text-gray-600">
-                  Sedang Diproses
-                </div>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={12} sm={6}>
-            <Card>
-              <div className="text-center">
-                {loading ? (
-                  <div className="flex items-center justify-center">
-                    <svg
-                      className="animate-spin h-5 w-5 sm:h-6 sm:w-6 text-green-600"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                  </div>
-                ) : (
-                  <div className="text-lg sm:text-2xl font-bold text-green-600">
-                    {submissions.filter((s) => s.status === "SELESAI").length}
-                  </div>
-                )}
-                <div className="text-sm sm:text-base text-gray-600">
-                  Selesai
-                </div>
-              </div>
-            </Card>
-          </Col>
-        </Row>
 
-        {/* Chart */}
-        <Card title="Distribusi Status Pengajuan" className="mb-6 sm:mb-8">
-          {loading ? (
-            <div className="flex items-center justify-center h-[300px]">
-              <div className="text-center">
-                <svg
-                  className="animate-spin h-8 w-8 sm:h-12 sm:w-12 text-blue-600 mx-auto mb-4"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                <p className="text-gray-600">Memuat data chart...</p>
-              </div>
-            </div>
-          ) : chartData.length === 0 ? (
-            <div className="flex items-center justify-center h-[300px]">
-              <div className="text-center text-gray-500">
-                <svg
-                  className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-4 text-gray-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                </svg>
-                <p className="text-base sm:text-lg font-medium">
-                  Belum ada data
-                </p>
-                <p className="text-xs sm:text-sm">
-                  Data chart akan muncul setelah ada pengajuan
-                </p>
-              </div>
-            </div>
-          ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
-                  }
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
+
+        {/* Submission Type Tabs */}
+        <Card title="Jenis Pengajuan" className="mb-6 sm:mb-8">
+          <Tabs
+            activeKey={activeSubmissionTab}
+            onChange={setActiveSubmissionTab}
+            items={[
+              {
+                key: "ALL",
+                label: (
+                  <span className="flex items-center">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Semua ({submissions.length})
+                  </span>
+                ),
+                children: null,
+              },
+              {
+                key: "KLINIK_HEWAN",
+                label: (
+                  <span className="flex items-center">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    Klinik Hewan ({submissions.filter(s => s.jenis_layanan === "KLINIK_HEWAN").length})
+                  </span>
+                ),
+                children: null,
+              },
+              {
+                key: "REKOMENDASI_DOKTER_HEWAN",
+                label: (
+                  <span className="flex items-center">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Rekomendasi Dokter Hewan ({submissions.filter(s => s.jenis_layanan === "REKOMENDASI_DOKTER_HEWAN").length})
+                  </span>
+                ),
+                children: null,
+              },
+              {
+                key: "NOMOR_KONTROL_VETERINER",
+                label: (
+                  <span className="flex items-center">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    Nomor Kontrol Veteriner ({submissions.filter(s => s.jenis_layanan === "NOMOR_KONTROL_VETERINER").length})
+                  </span>
+                ),
+                children: null,
+              },
+            ]}
+          />
         </Card>
 
         {/* Table */}
-        <Card title="Daftar Pengajuan">
+        <Card title={`Daftar Pengajuan - ${activeSubmissionTab === "ALL" ? "Semua" : activeSubmissionTab === "KLINIK_HEWAN" ? "Klinik Hewan" : activeSubmissionTab === "REKOMENDASI_DOKTER_HEWAN" ? "Rekomendasi Dokter Hewan" : activeSubmissionTab === "NOMOR_KONTROL_VETERINER" ? "Nomor Kontrol Veteriner" : activeSubmissionTab} (${filteredSubmissions.length})`}>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
               <Select

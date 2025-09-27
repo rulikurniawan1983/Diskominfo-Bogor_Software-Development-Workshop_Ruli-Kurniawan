@@ -1,6 +1,6 @@
-# Layanan Publik Mobile
+# SLIDER
 
-Sistem Layanan Publik Mobile Responsive dengan fitur pengajuan layanan, tracking status, dan notifikasi WhatsApp/Email.
+Sistem Layanan Informasi Data Edukasi Realtime dengan fitur pengajuan layanan, tracking status, dan notifikasi WhatsApp/Email.
 
 ## 🚀 Fitur
 
@@ -10,7 +10,7 @@ Sistem Layanan Publik Mobile Responsive dengan fitur pengajuan layanan, tracking
 - **Admin Dashboard** - Kelola pengajuan dengan Ant Design
 - **Notifikasi** - WhatsApp via Twilio + Email via Resend
 - **Responsive Design** - Mobile-first dengan TailwindCSS
-- **Database** - PostgreSQL dengan Sequelize ORM
+- **Database** - SQLite lokal (gratis dan self-contained)
 
 ## 📋 Prerequisites
 
@@ -19,7 +19,7 @@ Sebelum memulai, pastikan Anda telah menginstall:
 - **Node.js** (v18 atau lebih baru)
 - **Git**
 - **Cursor** (atau VS Code)
-- **PostgreSQL** (untuk development lokal) atau akun **Render**
+- **SQLite** (sudah included, tidak perlu install)
 
 ## 🛠️ Setup Step-by-Step
 
@@ -36,17 +36,13 @@ cd Workshop-Disko
 npm install
 ```
 
-### 3. Setup Database (Render PostgreSQL)
+### 3. Setup Database (SQLite - Otomatis)
 
-1. Buka [Render Dashboard](https://dashboard.render.com)
-2. Klik "New" → "PostgreSQL"
-3. Isi form:
-   - **Name**: `layanan-publik-db`
-   - **Database**: `layanan_publik`
-   - **User**: `layanan_user`
-   - **Region**: Pilih yang terdekat
-4. Klik "Create Database"
-5. Copy **External Database URL** untuk digunakan di `.env`
+Database SQLite sudah dikonfigurasi otomatis:
+- ✅ **File**: `database.sqlite` (di root project)
+- ✅ **Gratis 100%** - Tidak ada biaya hosting
+- ✅ **Self-contained** - Database dalam satu file
+- ✅ **Offline Ready** - Bekerja tanpa internet
 
 ### 4. Setup Twilio WhatsApp Sandbox
 
@@ -75,8 +71,8 @@ cp env.example .env
 2. Edit `.env` dengan konfigurasi Anda:
 
 ```env
-# Database Configuration
-DATABASE_URL=postgresql://username:password@host:port/database_name
+# Database Configuration (SQLite - Gratis)
+DATABASE_URL=sqlite:database.sqlite
 
 # Application Configuration
 APP_BASE_URL=http://localhost:3000
@@ -133,8 +129,8 @@ Buka [http://localhost:3000](http://localhost:3000) di browser.
 ### Available Scripts
 
 ```bash
-# Database initialization
-npm run init-db
+# Database initialization (SQLite - Otomatis)
+# Database sudah dikonfigurasi, tidak perlu init manual
 
 # Test notifications
 npm run test-twilio    # Test WhatsApp via Twilio
@@ -330,7 +326,7 @@ npm run dev
 
 ## 🚨 Important Notes
 
-1. **Database**: Gunakan Render PostgreSQL (bukan SQLite) untuk production
+1. **Database**: SQLite lokal sudah optimal untuk development dan production
 2. **Environment**: Set `NODE_ENV=production` di Vercel
 3. **Build**: Pastikan semua dependencies ada di `dependencies`
 4. **Cache**: Clear Vercel cache jika diperlukan

@@ -165,7 +165,7 @@ export async function POST(request) {
     // Normalize phone number to +62 format
     const normalizedPhone = normalizePhoneNumber(rawPhone);
 
-    // Create submission
+    // Create submission in SQLite database
     const submission = await Submission.create({
       tracking_code,
       nama,
@@ -175,6 +175,25 @@ export async function POST(request) {
       no_wa: normalizedPhone,
       consent,
       status: "PENGAJUAN_BARU",
+      // Store additional data as JSON
+      additional_data: JSON.stringify({
+        nama_hewan: body.nama_hewan || '',
+        jenis_hewan: body.jenis_hewan || '',
+        jenis_kelamin_hewan: body.jenis_kelamin_hewan || '',
+        umur_hewan: body.umur_hewan || '',
+        keluhan: body.keluhan || '',
+        // Document upload status
+        surat_permohonan: body.surat_permohonan ? 'Uploaded' : '',
+        ktp: body.ktp ? 'Uploaded' : '',
+        pas_foto: body.pas_foto ? 'Uploaded' : '',
+        ijazah_dokter_hewan: body.ijazah_dokter_hewan ? 'Uploaded' : '',
+        sertifikat_kompetensi: body.sertifikat_kompetensi ? 'Uploaded' : '',
+        surat_rekomendasi: body.surat_rekomendasi ? 'Uploaded' : '',
+        surat_permohonan_kontrol: body.surat_permohonan_kontrol ? 'Uploaded' : '',
+        data_umum_khusus: body.data_umum_khusus ? 'Uploaded' : '',
+        sop_pembersihan: body.sop_pembersihan ? 'Uploaded' : '',
+        surat_pernyataan: body.surat_pernyataan ? 'Uploaded' : '',
+      })
     });
 
     console.log(

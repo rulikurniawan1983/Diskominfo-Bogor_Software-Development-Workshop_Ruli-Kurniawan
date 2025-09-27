@@ -4,8 +4,8 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Layanan Publik Dinas Perikanan dan Peternakan Kab. Bogor",
-  description: "Sistem Layanan Publik Mobile Responsive",
+  title: "SLIDER",
+  description: "Sistem Layanan Informasi Data Edukasi Realtime",
   icons: '/icon.png'
 };
 

@@ -15,36 +15,46 @@ export async function POST(request) {
   try {
     await initDB();
 
-    const { email, password } = await request.json();
+    const { username, password } = await request.json();
+    console.log(`🔐 Login attempt: username=${username}`);
 
     // Validation
-    if (!email || !password) {
+    if (!username || !password) {
+      console.log("❌ Missing username or password");
       return NextResponse.json(
-        { message: "Email dan password wajib diisi" },
+        { message: "Username dan password wajib diisi" },
         { status: 400 }
       );
     }
 
-    // Find admin by email
+    // Find admin by username
     const admin = await Admin.findOne({
       where: { 
-        email: email.trim(),
+        username: username.trim(),
       },
     });
 
+    console.log(`🔍 Admin lookup result: ${admin ? 'Found' : 'Not found'}`);
+    if (admin) {
+      console.log(`📝 Admin details: username=${admin.username}, email=${admin.email}`);
+    }
+
     if (!admin) {
+      console.log("❌ Admin not found");
       return NextResponse.json(
-        { message: "Email atau password salah" },
+        { message: "Username atau password salah" },
         { status: 401 }
       );
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, admin.password);
+    console.log(`🔐 Password verification: ${isPasswordValid ? 'Valid' : 'Invalid'}`);
     
     if (!isPasswordValid) {
+      console.log("❌ Invalid password");
       return NextResponse.json(
-        { message: "Email atau password salah" },
+        { message: "Username atau password salah" },
         { status: 401 }
       );
     }
